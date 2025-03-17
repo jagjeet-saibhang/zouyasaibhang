@@ -1,0 +1,26 @@
+# dependencies
+
+node_modules
+/node_modules/
+node_modules/
+/node_modules
+
+# Expo
+
+.expo/
+dist/
+web-build/
+
+# next.js
+
+/.next/
+/out/
+.next/
+.next
+
+# others
+
+web-app
+/web-app/
+web-app/
+/web-app
