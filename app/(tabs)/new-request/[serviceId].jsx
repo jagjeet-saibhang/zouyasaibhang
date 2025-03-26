@@ -13,14 +13,19 @@ import useFetchDataById from "@/hooks/useFetchDataById";
 import { renderInputFields } from "@/components/Inputs/renderInputFields";
 import PageTitle from "@/components/ui/PageTitle";
 import { validateRequiredFields } from "@/components/Inputs/validateRequiredFields";
-import { newServiceRequestStep1, newServiceRequestStep2, } from "@/services/formFields";
+import {
+  newServiceRequestStep1,
+  newServiceRequestStep2,
+} from "@/services/formFields";
 import api from "@/services/api";
 import RadioButton from "@/components/ui/RadioButtons";
 
 const ServiceRequest = () => {
   const { user } = useGlobalContext();
   const { serviceId } = useGlobalSearchParams();
-  const { data, fetchData } = useFetchDataById(endpoints.Service.getServiceList);
+  const { data, fetchData } = useFetchDataById(
+    endpoints.Service.getServiceList
+  );
 
   const initialFormData = {
     requestFor: 1,
@@ -41,7 +46,7 @@ const ServiceRequest = () => {
     medicalHistory: "",
     currentHealthIssue: "",
     instruction: "",
-    relation: "", 
+    relation: "",
   };
 
   const RelationEnum = {
@@ -56,14 +61,18 @@ const ServiceRequest = () => {
     GRANDFATHER: { label: "Grandfather", value: 9 },
     GRANDMOTHER: { label: "Grandmother", value: 10 },
   };
-  
-  const { data: regionData, loading: regionLoading } = useFetchDataById(serviceId ? endpoints.Region.getRegionList : undefined);
+
+  const { data: regionData, loading: regionLoading } = useFetchDataById(
+    serviceId ? endpoints.Region.getRegionList : undefined
+  );
   const { isSaving, postRequest } = usePostData();
   // console.log("=====", regionData)
   const [loading, setLoading] = useState(false);
   const [activeStep, setActiveStep] = useState(1);
   const [formData, setFormdata] = useState(initialFormData);
-  const [updatedFormStep1, setUpdatedFormStep1] = useState(newServiceRequestStep1);
+  const [updatedFormStep1, setUpdatedFormStep1] = useState(
+    newServiceRequestStep1
+  );
 
   const [selectedValue, setSelectedValue] = useState("1");
 
@@ -72,7 +81,6 @@ const ServiceRequest = () => {
     { label: "Other", value: "2" },
   ];
 
-  
   // Separate states for dropdown lists
   const [regionList, setRegionList] = useState([]);
   const [stateList, setStateList] = useState([]);
@@ -81,7 +89,9 @@ const ServiceRequest = () => {
   // Update region list when data is fetched
   useEffect(() => {
     if (regionData) {
-      setRegionList(regionData.map(({ name, id }) => ({ label: name, value: id })));
+      setRegionList(
+        regionData.map(({ name, id }) => ({ label: name, value: id }))
+      );
     }
     // console.log("=====", regionData)
   }, [regionData]);
@@ -92,8 +102,12 @@ const ServiceRequest = () => {
       if (formData.regionId) {
         setStateList([]);
         try {
-          const res = await api.post(endpoints.State.getStateListByRegionId, { regionId: formData.regionId });
-          setStateList(res.map((state) => ({ label: state.name, value: state.id })));
+          const res = await api.post(endpoints.State.getStateListByRegionId, {
+            regionId: formData.regionId,
+          });
+          setStateList(
+            res.map((state) => ({ label: state.name, value: state.id }))
+          );
         } catch (error) {
           console.error(error);
         }
@@ -102,9 +116,10 @@ const ServiceRequest = () => {
     fetchStates();
   }, [formData.regionId]);
 
-  const { data: serviceData, loading: serviceLoading } = useFetchDataById(endpoints.Service.getServiceList);
+  const { data: serviceData, loading: serviceLoading } = useFetchDataById(
+    endpoints.Service.getServiceList
+  );
   useEffect(() => {
-
     if (serviceData) {
       setUpdatedFormStep1((prevData) =>
         prevData.map((field) => {
@@ -129,8 +144,12 @@ const ServiceRequest = () => {
       if (formData.stateId) {
         setCityList([]);
         try {
-          const res = await api.post(endpoints.City.getCityListByStateId, { stateId: formData.stateId });
-          setCityList(res.map((city) => ({ label: city.name, value: city.id })));
+          const res = await api.post(endpoints.City.getCityListByStateId, {
+            stateId: formData.stateId,
+          });
+          setCityList(
+            res.map((city) => ({ label: city.name, value: city.id }))
+          );
         } catch (error) {
           console.error(error);
         }
@@ -151,13 +170,11 @@ const ServiceRequest = () => {
     );
   }, [regionList, stateList, cityList]);
 
-
   const handleInputChange = (key, value) => {
     setFormdata((prevState) => ({ ...prevState, [key]: value }));
   };
 
   const relationOptions = Object.values(RelationEnum); // Convert object to array
-
 
   const handleSubmit = async () => {
     const emptyFieldsStep1 = validateRequiredFields(
@@ -201,19 +218,19 @@ const ServiceRequest = () => {
         vendorStaffId: "00000000-0000-0000-0000-000000000000",
         cityId: formData?.cityId,
         paymentId: "00000000-0000-0000-0000-000000000000",
-        "customerMedicalHistory": {
-          "firstName": formData.firstName,
-          "lastName": formData.lastName,
-          "age": formData.age,
-          "height": formData.height,
-          "weight": formData.weight,
-          "medicalHistory": formData.medicalHistory,
-          "currentHealthIssue": formData.currentHealthIssue,
-          "instruction": formData.instruction,
-          "statusId": 0
-        }
+        customerMedicalHistory: {
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          age: formData.age,
+          height: formData.height,
+          weight: formData.weight,
+          medicalHistory: formData.medicalHistory,
+          currentHealthIssue: formData.currentHealthIssue,
+          instruction: formData.instruction,
+          statusId: 0,
+        },
       };
-console.log("+++++++++",formData)
+      console.log("+++++++++", formData);
       const res = await postRequest(endpoints.ServiceRequest.post, payload);
       if (res?.success) {
         setFormdata(initialFormData);
@@ -242,16 +259,13 @@ console.log("+++++++++",formData)
     return <Loader isLoading={loading || regionLoading} />;
   }
 
-
-
   return (
     <SafeAreaView className="flex-1">
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
         <ThemedView className="w-full h-full">
-
           <View className="mt-4">
             <PageTitle title="Request Service" />
-           
+
             {/* Step Indicators */}
             <View className="flex-row  justify-center mt-4 px-4">
               <StepIndicator
@@ -282,7 +296,9 @@ console.log("+++++++++",formData)
             </View>
 
             <View className="px-6 gap-2">
-              <Text className="text-black font-pSemiBold text-xl mt-6 ">Select Request for</Text>
+              <Text className="text-black font-pSemiBold text-xl mt-6 ">
+                Select Request for
+              </Text>
               <RadioButton
                 options={options}
                 selected={selectedValue}
@@ -291,7 +307,15 @@ console.log("+++++++++",formData)
               {selectedValue === "2" && (
                 <View className="gap-2 flex-wrap flex-row mt-4">
                   {renderInputFields(
-                    [{ placeholder: "Relation", label: "Relation", key: "Relation", type: "select", items:relationOptions }],
+                    [
+                      {
+                        placeholder: "Relation",
+                        label: "Relation",
+                        key: "Relation",
+                        type: "select",
+                        items: relationOptions,
+                      },
+                    ],
                     formData,
                     handleInputChange
                   )}
@@ -320,7 +344,6 @@ console.log("+++++++++",formData)
                 </View>
               )}
             </View>
-
           </View>
 
           <View className="m-4">
@@ -353,7 +376,6 @@ console.log("+++++++++",formData)
                 isLoading={isSaving}
               />
             )}
-
           </View>
         </ThemedView>
       </ScrollView>
@@ -366,8 +388,9 @@ export default ServiceRequest;
 const StepIndicator = ({ step, label, isActive, onPress }) => (
   <TouchableOpacity className="items-center" onPress={onPress}>
     <Text
-      className={`text-center text-xl pt-0.5 rounded-full w-8 h-8 flex items-center justify-center ${isActive ? "bg-[#C33149] text-white" : "bg-[#DADADA] text-black"
-        }`}
+      className={`text-center text-xl pt-0.5 rounded-full w-8 h-8 flex items-center justify-center ${
+        isActive ? "bg-[#C33149] text-white" : "bg-[#DADADA] text-black"
+      }`}
     >
       {step}
     </Text>

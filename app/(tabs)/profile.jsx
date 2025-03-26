@@ -1,5 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, Image, TouchableOpacity, ScrollView } from "react-native";
+import {
+  View,
+  Text,
+  Image,
+  TouchableOpacity,
+  ScrollView,
+  Alert,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ThemedView } from "@/components/ThemedView";
 import InputText from "@/components/Inputs/InputText";
@@ -19,9 +26,10 @@ import { ThemedText } from "@/components/ThemedText";
 import PageTitle from "@/components/ui/PageTitle";
 import CustomConfirmation from "@/components/CustomConfirmation";
 import api from "@/services/api";
+// import NewCalendar from "@/components/Inputs/Calendar";
 
 const inputFields = [
-  { placeholder: "First Name", label: "First Name", key: "firstName", },
+  { placeholder: "First Name", label: "First Name", key: "firstName" },
   { placeholder: "Last Name", label: "Last Name", key: "lastName" },
   {
     placeholder: "Email",
@@ -30,13 +38,19 @@ const inputFields = [
     keyboardType: "email-address",
   },
   {
-    placeholder: "phone No",
-    label: "phone No",
+    placeholder: "Phone No",
+    label: "Phone No",
     key: "phoneNo",
     keyboardType: "phone-pad",
     editable: false,
   },
-  { placeholder: "D.O.B", label: "D.O.B", key: "dateOfBirth", type: "date", minimumDate: "1900-01-01" },
+  {
+    placeholder: "D.O.B",
+    label: "D.O.B",
+    key: "dateOfBirth",
+    type: "date",
+    minimumDate: "1900-01-01",
+  },
   {
     placeholder: "Gender",
     key: "gender",
@@ -52,8 +66,9 @@ const inputFields = [
     key: "address",
     type: "textarea",
   },
-  { placeholder: "State", label: "State", key: "state" },
   { placeholder: "City", label: "City", key: "city" },
+  { placeholder: "State", label: "State", key: "state" },
+
   // { placeholder: "Country", label: "Country", key: "country" }, //commented out because not in backend
   {
     placeholder: "Pincode",
@@ -76,8 +91,70 @@ const vendorDocs = [
     key: "panCardDocFile",
     type: "file",
   },
+  {
+    placeholder: "Police Verification",
+    label: "Police Verification",
+    key: "policeVerificationDocFile",
+    type: "file",
+  },
 ];
 
+const venderCompanyInformation = [
+  {
+    placeholder: "Company Name",
+    label: "Company Name",
+    key: "companyName",
+    keyboardType: "textarea",
+    required: true,
+  },
+  {
+    placeholder: "Company Pan",
+    label: "Company Pan",
+    key: "companyPanCardDocFile",
+    type: "file",
+  },
+  {
+    placeholder: "Incorporation Certificate",
+    label: "Incorporation Certificate",
+    key: "companyIncorporationCertificateFile",
+    type: "file",
+  },
+  {
+    placeholder: "GST Certificate",
+    label: "GST Certificate",
+    key: "companyGstCertificationFile",
+    type: "file",
+  },
+];
+
+const venderCompanyBankInfo = [
+  {
+    placeholder: "Bank Name",
+    label: "Bank Name",
+    key: "bankName",
+    keyboardType: "textarea",
+    // required: true,
+  },
+  {
+    placeholder: "IFSC Code",
+    label: "IFSC Code",
+    key: "ifscCode",
+    keyboardType: "textarea",
+    // required: true,
+  },
+  {
+    placeholder: "Branch Name",
+    label: "Branch Name",
+    key: "bankBranch",
+    keyboardType: "textarea",
+  },
+  {
+    placeholder: "Account Number",
+    label: "Account Number",
+    key: "accountNo",
+    keyboardType: "textarea",
+  },
+];
 
 const doctorDetails = [
   {
@@ -103,10 +180,10 @@ const doctorDetails = [
   {
     placeholder: "Doctor Mobile Number 2",
     label: "Doctor Mobile Number 2",
-    key: "doctorNo",
+    key: "doctorNo2",
     keyboardType: "numeric",
   },
-]
+];
 const relativeDetails = [
   {
     placeholder: "Realative Name 1",
@@ -135,11 +212,9 @@ const relativeDetails = [
     key: "relativeNo2",
     keyboardType: "numeric",
   },
-]
+];
 
 const emergencyContacts = [
-
-
   {
     placeholder: "Ambulance No",
     label: "Ambulance No",
@@ -161,20 +236,43 @@ const Profile = () => {
   const [confirmationMessage, setConfirmationMessage] = useState("");
   // Show confirmation dialog
   const showConfirmation = () => setConfirmationVisible(true);
-  const endpoint = user.userType == 2 ? endpoints.Vendor.get : endpoints.Customer.get
-  const endpointDelete = user.userType == 2 ? endpoints.Vendor.delete : endpoints.Customer.delete
-  const { data: userDetails, loading: userLoading, fetchData: fetchUser } = useFetchDataById(`${endpoint}${user.id}`);
-  console.log("-------",user.id)
+
+  const endpointInfo =
+    user.userType == 2 ? endpoints.Vendor.get : endpoints.Customer.get;
+
+  const endpoint =
+    user.userType === 2
+      ? endpoints.Vendor.put
+      : endpoints.CustomerEmergencyContact.post;
+
+  const endpointDelete =
+    user.userType == 2 ? endpoints.Vendor.delete : endpoints.Customer.delete;
+  const {
+    data: userDetails,
+    loading: userLoading,
+    fetchData: fetchUser,
+  } = useFetchDataById(`${endpointInfo}${user.id}`);
+  console.log("-------", user.id);
+  // console.log("user.cityId", user.cityId);
+  console.log("userDetails", userDetails);
+
   const [form, setForm] = useState({});
 
   const deleteUser = async () => {
-    const response = await api.delete(`${endpointDelete}${user.id}`)
+    const response = await api.delete(`${endpointDelete}${user.id}`);
     if (response === true) {
-      handleLogout()
+      handleLogout();
     }
-    return response
+    return response;
+  };
 
-  }
+  const handleInputChange = (key, value) => {
+    setForm((prevState) => ({
+      ...prevState,
+      [key]: key === "gender" ? parseInt(value) : value,
+    }));
+  };
+
   useEffect(() => {
     if (userDetails) {
       // Create a copy of userDetails with null values replaced by empty strings
@@ -191,27 +289,100 @@ const Profile = () => {
     }
   }, [userDetails]);
 
-  const { isSaving, postRequest } = usePutData();
+  const { isSaving, postRequest } = usePostData();
+
+  // const handleSubmit = async () => {
+  //   setLoading(true);
+  //   try {
+  //     const payload = { ...form, id: user.id };
+
+  //     console.log("user", user);
+
+  //     const response = await postRequest(endpoint, payload);
+
+  //     console.log("response---", response);
+
+  //     if (!response) {
+  //       Alert.alert("Error", "No response from server. Please try again.");
+  //       return;
+  //     }
+  //     if (response?.success) {
+  //       console.log("Updated successfully");
+  //     } else {
+  //       const errorMessage =
+  //         response?.validationErrors?.length > 0
+  //           ? response.validationErrors.join("\n")
+  //           : "Data is not updated.";
+  //       Alert.alert("Error", errorMessage);
+  //       console.log("errorMessage", errorMessage);
+  //     }
+  //   } catch (error) {
+  //     console.error("Error in update:", error);
+  //     Alert.alert("Error", "Something went wrong. Please try again later.");
+  //   }
+  //   setTimeout(() => {
+  //     setLoading(false);
+  //   }, 300);
+  // };
+
+  // const handleInputChange = (key, value) => {
+  //   setForm((prevState) => ({
+  //     ...prevState,
+  //     [key]: key === "gender" ? parseInt(value) : value,
+  //   }));
+  // };
 
   const handleSubmit = async () => {
     setLoading(true);
     try {
-      const payload = { ...form, id: user.id };
-      await postRequest(endpoint, payload);
-      console.log("updated successfully")
+      // const payload = {
+      //   ...form,
+      //   id: user.id,
+      //   name: form.doctorName || "",
+      //   number: form.doctorNo || "",
+      //   remarks: "",
+      //   statusId: user.userType,
+      // };
+      let payload = {
+        ...form,
+        id: userDetails.id,
+        name: form.doctorName || "",
+        number: form.doctorNo || "",
+        remarks: "",
+        statusId: user.userType,
+      };
+
+      if (user.userType === 2) {
+        payload = {
+          ...form,
+          id: userDetails.id,
+          statusId: user.userType,
+          cityId: userDetails.cityId,
+        };
+      }
+
+      const response = await postRequest(endpoint, payload);
+
+      console.log("API Response:", response);
+
+      if (!response) {
+        Alert.alert("Error", "No response from server. Please try again.");
+        return;
+      }
+      if (response?.success) {
+        console.log("Updated successfully");
+      } else {
+        const errorMessage =
+          response?.validationErrors?.length > 0
+            ? response.validationErrors.join("\n")
+            : "Data is not updated.";
+        Alert.alert("Error", errorMessage);
+      }
     } catch (error) {
+      console.error("Error in update:", error);
       Alert.alert("Error", "Something went wrong. Please try again later.");
     }
-    setTimeout(() => {
-      setLoading(false);
-    }, 300);
-  };
-
-  const handleInputChange = (key, value) => {
-    setForm((prevState) => ({
-      ...prevState,
-      [key]: key === "gender" ? parseInt(value) : value,
-    }));
+    setLoading(false);
   };
 
   const onCancel = () => {
@@ -220,9 +391,9 @@ const Profile = () => {
 
   // Handle confirm action in confirmation dialog
   const onConfirm = async () => {
-    setLoading(true)
+    setLoading(true);
     await deleteUser();
-    setLoading(false)
+    setLoading(false);
     setConfirmationVisible(false);
   };
   const clickLogout = () => {
@@ -236,7 +407,9 @@ const Profile = () => {
     <SafeAreaView style={{ flex: 1 }}>
       <ScrollView
         contentContainerStyle={{ flexGrow: 1 }}
-        refreshControl={<RefreshControl refreshing={userLoading} onRefresh={fetchUser} />}
+        refreshControl={
+          <RefreshControl refreshing={userLoading} onRefresh={fetchUser} />
+        }
       >
         <ThemedView className="p-4">
           <PageTitle title="Profile" />
@@ -258,24 +431,95 @@ const Profile = () => {
           <View className="gap-2 mt-8">
             <View className="gap-4 flex-wrap flex-row border-b pb-4 border-gray-200">
               {renderInputFields(inputFields, form, handleInputChange)}
+              {/* {inputFields.map((field) =>
+                field.key === "dateOfBirth" ? (
+                  <NewCalendar
+                    key={field.key}
+                    selectedDate={form.dateOfBirth}
+                    onDateSelect={(date) =>
+                      handleInputChange("dateOfBirth", date)
+                    }
+                  />
+                ) : (
+                  renderInputFields([field], form, handleInputChange)
+                )
+              )} */}
             </View>
             {/* user.userType == 2 */}
-            {user.userType == 2 ?
-              <View className="gap-4 flex-wrap flex-row pb-4 ml-4">{renderInputFields(vendorDocs, form, handleInputChange)}</View>
-              :
+            {user.userType == 2 ? (
+              <>
+                <View className="gap-4 flex-wrap flex-row pb-4 ml-4">
+                  {renderInputFields(vendorDocs, form, handleInputChange)}
+                </View>
+
+                <View className="mt-4">
+                  <ThemedText className="text-2xl">
+                    Company Information
+                  </ThemedText>
+                  <View className="gap-4 flex-wrap flex-row border-b pb-4 border-gray-200">
+                    {renderInputFields(
+                      venderCompanyInformation,
+                      form,
+                      handleInputChange
+                    )}
+                  </View>
+                </View>
+
+                <View className="mt-4">
+                  <ThemedText className="text-2xl">Bank Information</ThemedText>
+                  <View className="gap-4 flex-wrap flex-row border-b pb-4 border-gray-200">
+                    {renderInputFields(
+                      venderCompanyBankInfo,
+                      form,
+                      handleInputChange
+                    )}
+                  </View>
+                </View>
+              </>
+            ) : (
               <View className="mt-3">
-                <ThemedText className="text-2xl">Personal Emergency Contacts</ThemedText>
-                <ThemedText className="text-xl my-5"><MaterialCommunityIcons className="ml-10" name="doctor" size={22} />  Doctor Contacts</ThemedText>
+                <ThemedText className="text-2xl">
+                  Personal Emergency Contacts
+                </ThemedText>
+                <ThemedText className="text-xl my-5">
+                  <MaterialCommunityIcons
+                    className="ml-10"
+                    name="doctor"
+                    size={22}
+                  />{" "}
+                  Doctor Contacts
+                </ThemedText>
 
-                <View className="gap-4 flex-wrap flex-row pb-4">{renderInputFields(doctorDetails, form, handleInputChange)}</View>
-                
-                <ThemedText className="text-xl my-5"><MaterialCommunityIcons className="ml-10" name="home-city-outline" size={22} />  Relative Contacts</ThemedText>
-                <View className="gap-4 flex-wrap flex-row pb-4">{renderInputFields(relativeDetails, form, handleInputChange)}</View>
-                <View className="gap-4 flex-wrap flex-row pb-4">{renderInputFields(emergencyContacts, form, handleInputChange)}</View>
+                <View className="gap-4 flex-wrap flex-row pb-4">
+                  {renderInputFields(doctorDetails, form, handleInputChange)}
+                </View>
 
-              </View>}
+                <ThemedText className="text-xl my-5">
+                  <MaterialCommunityIcons
+                    className="ml-10"
+                    name="home-city-outline"
+                    size={22}
+                  />{" "}
+                  Relative Contacts
+                </ThemedText>
+                <View className="gap-4 flex-wrap flex-row pb-4">
+                  {renderInputFields(relativeDetails, form, handleInputChange)}
+                </View>
+                <View className="gap-4 flex-wrap flex-row pb-4">
+                  {renderInputFields(
+                    emergencyContacts,
+                    form,
+                    handleInputChange
+                  )}
+                </View>
+              </View>
+            )}
             <View className="mt-4">
-              <PrimaryButton title="Update" handlePress={handleSubmit} isLoading={isSaving} />
+              <PrimaryButton
+                title="Update"
+                handlePress={handleSubmit}
+                isLoading={isSaving}
+              />
             </View>
             <CustomConfirmation
               title="Delete"
@@ -285,7 +529,12 @@ const Profile = () => {
               onConfirm={onConfirm}
             />
             <View className="mt-4">
-              <PrimaryButton title="Delete" handlePress={clickLogout} isLoading={isSaving} containerStyles="bg-red" />
+              <PrimaryButton
+                title="Delete"
+                handlePress={clickLogout}
+                isLoading={isSaving}
+                containerStyles="bg-red"
+              />
             </View>
           </View>
         </ThemedView>

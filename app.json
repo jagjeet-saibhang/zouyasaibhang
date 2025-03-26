@@ -6,7 +6,10 @@
     "orientation": "portrait",
     "icon": "./assets/icons/icon48x48.png",
     "scheme": "eldercare",
-    "platforms": ["ios", "android"],
+    "platforms": [
+      "ios",
+      "android"
+    ],
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
@@ -15,7 +18,9 @@
       "infoPlist": {
         "CFBundleURLTypes": [
           {
-            "CFBundleURLSchemes": ["eldercare"]
+            "CFBundleURLSchemes": [
+              "eldercare"
+            ]
           }
         ],
         "ITSAppUsesNonExemptEncryption": false
@@ -31,7 +36,10 @@
               "host": "*"
             }
           ],
-          "category": ["BROWSABLE", "DEFAULT"]
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
         }
       ],
       "package": "app.eldercare.co.in"
@@ -56,7 +64,7 @@
         "origin": false
       },
       "eas": {
-        "projectId": "eafe3569-dc87-4460-a6cb-e7348112aa26"
+        "projectId": "1abb7c97-b3b4-4a44-a153-f51539ecf78c"
       }
     }
   }

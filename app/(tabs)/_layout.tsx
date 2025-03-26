@@ -44,7 +44,7 @@ export default function TabLayout() {
     "feedback",
     "invoice-management",
     "sos",
-    "new-request",
+    // "new-request",
     "services",
     "request-details",
     "staff-list",
@@ -89,13 +89,23 @@ export default function TabLayout() {
               title: tab.title,
               headerShown: false,
               tabBarIcon: ({ color, focused }) => (
-                <TabIcon iconType={tab.iconType} iconName={tab.iconName} color={color} name={tab.title} focused={focused} />
+                <TabIcon
+                  iconType={tab.iconType}
+                  iconName={tab.iconName}
+                  color={color}
+                  name={tab.title}
+                  focused={focused}
+                />
               ),
             }}
           />
         ))}
         {hiddenTabScreens.map((tab) => (
-          <Tabs.Screen name={tab} key={tab} options={{ headerShown: false, href: null }} />
+          <Tabs.Screen
+            name={tab}
+            key={tab}
+            options={{ headerShown: false, href: null }}
+          />
         ))}
       </Tabs>
     </ThemedView>
@@ -131,10 +141,21 @@ const TabIcon = ({
       : null;
 
   return (
-    <View className={`flex items-center justify-center gap-1 ${focused ? "-mt-6 h-[60px] w-[90px] rounded-full" : ""}`}>
+    <View
+      className={`flex items-center justify-center gap-1 ${
+        focused ? "-mt-6 h-[60px] w-[90px] rounded-full" : ""
+      }`}
+    >
       {focused && <ThemedView className="w-10 h-3 rounded-full" />}
-      {IconComponent && <IconComponent name={iconName as any} size={24} color={color} />}
-      <Text className={`text-center ${focused ? "font-pSemiBold text-lg" : "font-pRegular text-sm"}`} style={{ color }}>
+      {IconComponent && (
+        <IconComponent name={iconName as any} size={24} color={color} />
+      )}
+      <Text
+        className={`text-center ${
+          focused ? "font-pSemiBold text-lg" : "font-pRegular text-sm"
+        }`}
+        style={{ color }}
+      >
         {name}
       </Text>
     </View>
